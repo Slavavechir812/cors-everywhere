@@ -1,5 +1,5 @@
-const express = require('express');
-const axios = require('axios');
+const express = require("express");
+const axios = require("axios");
 
 // Initialize the Express app
 const app = express();
@@ -25,18 +25,25 @@ app.get("/", async (req, res) => {
     // Fetch the content from the target URL
     const response = await axios.get(target, {
       headers: {
-        "User-Agent": "Node.js Proxy",
+        "User-Agent": req.headers["user-agent"] || "Node.js Proxy",
+        "Accept": "application/json, text/html, */*", // Accept API responses or HTML
       },
     });
 
-    // Set headers for the response to be CORS-friendly
+    // Set the correct content type for the response
     res.setHeader("Content-Type", response.headers["content-type"]);
 
     // Send the data back to the client
-    res.send(response.data);
+    res.status(response.status).send(response.data);
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).json({ error: "Failed to fetch the target URL" });
+    // Log the error for debugging
+    console.error("Error fetching target URL:", error.message);
+
+    // Return error details
+    res.status(error.response?.status || 500).json({
+      error: "Failed to fetch the target URL",
+      details: error.response?.data || error.message,
+    });
   }
 });
 
