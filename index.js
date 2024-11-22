@@ -23,15 +23,15 @@ app.get("/*", async (req, res) => {
     // Log the target URL being requested
     console.log("Target URL requested:", targetUrl);
 
-    // Decode URL in case it's encoded
+    // Decode URL to handle any encoding issues
     const decodedUrl = decodeURIComponent(targetUrl);
     console.log("Decoded URL:", decodedUrl); // Log decoded URL
 
-    // Fetch the content from the target URL
+    // Fetch the content from the target URL (which includes query params)
     const response = await axios.get(decodedUrl, {
       headers: {
-        "User-Agent": "Node.js Proxy", // Ensure the user-agent is set
-        "Content-Type": "application/json", // Set content type if needed
+        "User-Agent": "Node.js Proxy", // Set user-agent
+        "Content-Type": "application/json", // Content type for JSON responses
       },
     });
 
@@ -49,7 +49,7 @@ app.get("/*", async (req, res) => {
       console.log("API Error Status:", error.response.status);
     }
 
-    // Handle response errors and return detailed info
+    // Return error details to the client
     res.status(error.response?.status || 500).json({
       error: "Failed to fetch the target URL",
       details: error.response?.data || error.message,
