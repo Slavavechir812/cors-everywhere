@@ -19,14 +19,14 @@ app.get("/", async (req, res) => {
   }
 
   try {
-    const encodedTarget = encodeURI(target); // Encode target URL
-    const response = await axios.get(encodedTarget, {
+    // Fetch the content from the target URL
+    const response = await axios.get(target, {
       headers: {
-        ...req.headers, // Forward client headers
         "User-Agent": "Node.js Proxy",
       },
     });
 
+    // Forward the content type from the target response
     res.setHeader("Content-Type", response.headers["content-type"]);
     res.status(response.status).send(response.data);
   } catch (error) {
