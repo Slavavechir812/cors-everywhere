@@ -13,7 +13,8 @@ app.use((req, res, next) => {
 
 // Route to handle proxied requests
 app.get("/*", async (req, res) => {
-  const targetUrl = req.params[0]; // Capture everything after "/"
+  // Capture everything after "/" in the URL path (including query params)
+  const targetUrl = req.params[0];
 
   if (!targetUrl) {
     return res.status(400).json({ error: "Target URL is required" });
@@ -23,19 +24,15 @@ app.get("/*", async (req, res) => {
     // Log the target URL being requested
     console.log("Target URL requested:", targetUrl);
 
-    // Decode URL to handle any encoding issues
-    const decodedUrl = decodeURIComponent(targetUrl);
-    console.log("Decoded URL:", decodedUrl); // Log decoded URL
-
-    // Fetch the content from the target URL (which includes query params)
-    const response = await axios.get(decodedUrl, {
+    // Fetch the content from the target URL
+    const response = await axios.get(decodeURIComponent(targetUrl), {
       headers: {
         "User-Agent": "Node.js Proxy", // Set user-agent
         "Content-Type": "application/json", // Content type for JSON responses
       },
     });
 
-    // Forward response headers and data
+    // Forward the API response's headers and data
     res.setHeader("Content-Type", response.headers["content-type"]);
     res.status(response.status).send(response.data);
 
