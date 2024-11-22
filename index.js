@@ -25,6 +25,7 @@ app.get("/*", async (req, res) => {
     console.log("Target URL requested:", targetUrl);
 
     // Fetch the content from the target URL
+    console.log("Ready URL:", decodeURIComponent(targetUrl))
     const response = await axios.get(decodeURIComponent(targetUrl), {
       headers: {
         "User-Agent": "Node.js Proxy", // Set user-agent
