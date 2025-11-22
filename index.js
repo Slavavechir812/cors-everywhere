@@ -11,47 +11,30 @@ app.use((req, res, next) => {
   next();
 });
 
-// Route to handle proxied requests
 app.get('/*', async (req, res) => {
-  const targetUrl = req.params[0];  // Capture everything after "/" in the URL path (including query params)
+  const full = req.originalUrl.substring(1); 
+  // removes the leading "/" and keeps EVERYTHING including ?query
 
-  if (!targetUrl) {
-    return res.status(400).json({ error: 'Target URL is required' });
-  }
+  if (!full) return res.status(400).json({ error: 'Target URL is required' });
 
   try {
-    // Log the target URL being requested
-    console.log('Target URL requested:', targetUrl);
+    console.log("Fetching:", full);
 
-    // Fetch the content from the target URL
-    const response = await axios.get(decodeURIComponent(targetUrl), {
-      headers: {
-        'User-Agent': 'Node.js Proxy', // Set user-agent (adjust as needed)
-        'Content-Type': 'application/json', // Content type for JSON responses
-      },
+    const response = await axios.get(full, {
+      headers: { 'User-Agent': 'Node.js Proxy' }
     });
 
-    // Forward the API response's headers and data
     res.setHeader('Content-Type', response.headers['content-type']);
     res.status(response.status).send(response.data);
 
-    console.log('Response from API:', response.status); // Log status code
   } catch (error) {
-    console.error('Error fetching target URL:', error.message);
-
-    // Log the error response for debugging
-    if (error.response) {
-      console.log('API Error Response:', error.response.data);
-      console.log('API Error Status:', error.response.status);
-    }
-
-    // Return error details to the client
     res.status(error.response?.status || 500).json({
       error: 'Failed to fetch the target URL',
       details: error.response?.data || error.message,
     });
   }
 });
+
 
 // Start the server
 const PORT = 8080;
